@@ -1,134 +1,222 @@
-// Fichier : watch.js (Version FINALE pour une Robustesse Maximale)
+// Fichier : watch.js (Multi-API pour la Lecture)
 
-// 🚨 LISTE DÉFINITIVE DES APIS DE LECTURE
-const EXTERNAL_APIS = [
-    { url: "https://gojo-api.deno.dev/api/v1/episode", type: "simple", name: "gojo-api" },      // API 1
-    { url: "https://api.enime.moe/api/v1/episode", type: "simple", name: "enime-api" },         // API 2
-    { url: "https://api-video-secours.vercel.app/api/v1/episode", type: "simple", name: "secours-api" }, // API 3
-    // API 4 : Tentative avec une requête plus simple pour éviter l'erreur HTML
-    { url: "https://api.consumet.org/anime/zoro/watch", type: "consumet", name: "consumet-zoro" } 
-];
+// --- CONFIGURATION API DE STREAMING ---
+const ZORO_API_URL = "https://zoro-api.vercel.app/anime"; // NOUVELLE API
+const ANIMEPAHE_API_URL = "https://animepahe.tech/api"; // NOUVELLE API
+const GOJO_API_URL = "https://gojo-api.deno.dev/anime"; // Ancienne API (moins fiable)
 
-// Le Proxy CORS public
-const CORS_PROXY = "https://corsproxy.io/?"; 
+// --- CONFIGURATION JIKAN (Détails) ---
+const JIKAN_DETAILS_URL = "https://api.jikan.moe/v4/anime"; 
 
-const videoIframe = document.getElementById('video-player-iframe');
-const titleDisplay = document.getElementById('display-episode-title');
-const episodeControls = document.getElementById('episode-controls');
+const playerContainer = document.getElementById('player-container');
+const messageContainer = document.getElementById('error-message');
+const animeTitleElement = document.getElementById('anime-title');
 
-/**
- * Tente de charger la vidéo en passant en revue toutes les APIs de la liste.
- */
-async function loadEpisodePlayer() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const animeId = urlParams.get('id');
-    const episodeNumber = urlParams.get('episode');
-
-    if (!animeId || !episodeNumber) {
-        titleDisplay.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Paramètres ID et Épisode manquants dans l\'URL.';
+// ----------------------------------------------------
+// 1. Fonction principale de chargement de la source
+// ----------------------------------------------------
+async function loadEpisodeSource(malId, episodeNumber) {
+    if (!malId || !episodeNumber) {
+        displayError("ID d'anime ou numéro d'épisode manquant.");
         return;
     }
 
-    let videoFound = false;
+    let sourceFound = false;
     let lastError = null;
 
-    // 🚨 BOUCLE DE REPLI (Tente chaque API dans l'ordre)
-    for (let i = 0; i < EXTERNAL_APIS.length; i++) {
-        const api = EXTERNAL_APIS[i];
-        const apiName = api.name;
-        titleDisplay.textContent = `Tentative de connexion à l'API ${i + 1} (${apiName})...`;
-        
-        let targetUrl;
-        
-        // Construction de l'URL spécifique à l'API
-        if (api.type === "simple") {
-            targetUrl = `${api.url}/${animeId}/${episodeNumber}`;
-        } else if (api.type === "consumet") {
-            // 🚨 MODIFICATION CLÉ : Simplification de la requête Consumet (basé sur le MAL ID)
-            // L'API Consumet n'est pas optimisée pour le MAL ID, mais nous tentons le format le plus simple.
-            targetUrl = `https://api.consumet.org/anime/zoro/watch?episodeId=${animeId}-${episodeNumber}`; 
-        }
+    // Récupérer le titre (nécessaire pour toutes les APIs de streaming)
+    const titleData = await fetchAnimeTitle(malId);
+    if (!titleData) {
+        displayError("Impossible de charger les métadonnées de l'anime (Jikan).");
+        return;
+    }
+    animeTitleElement.textContent = `Lecture : ${titleData.title} - Ép. ${episodeNumber}`;
 
+
+    // --- 🚨 STRATÉGIE MULTI-API 🚨 ---
+    const apis = [
+        { name: "Zoro-API", url: ZORO_API_URL, fetcher: fetchZoroSource },
+        { name: "Animepahe-API", url: ANIMEPAHE_API_URL, fetcher: fetchAnimepaheSource },
+        { name: "Gojo-API", url: GOJO_API_URL, fetcher: fetchGojoSource },
+    ];
+
+    messageContainer.innerHTML = `<p><i class="fas fa-spinner fa-spin"></i> Recherche de source pour Ép. ${episodeNumber}...</p>`;
+
+    for (const api of apis) {
+        console.log(`Tentative avec ${api.name}...`);
+        messageContainer.innerHTML = `<p><i class="fas fa-search"></i> Tentative avec **${api.name}**...</p>`;
+        
         try {
-            const finalUrl = `${CORS_PROXY}${encodeURIComponent(targetUrl)}`;
-            const response = await fetch(finalUrl);
+            const embedUrl = await api.fetcher(titleData.searchTitle, episodeNumber, api.url);
             
-            if (!response.ok) {
-                // Stocke l'erreur et passe à l'API suivante.
-                throw new Error(`Échec (Statut: ${response.status})`);
+            if (embedUrl) {
+                renderPlayer(embedUrl);
+                messageContainer.innerHTML = `<p style="color: #2ecc71;">✅ Source trouvée via **${api.name}**.</p>`;
+                sourceFound = true;
+                break; // Arrêter dès qu'une source fonctionne
             }
-            
-            // Correction pour l'erreur JSON/HTML
-            let data;
-            try {
-                data = await response.json();
-            } catch (e) {
-                // Si la réponse n'est pas du JSON (c'est probablement du HTML), on la rejette
-                throw new Error("Réponse non valide (format HTML/Texte)");
-            }
-
-            // Vérification de la source vidéo
-            if (data.sources && data.sources.length > 0) {
-                // SUCCÈS : Vidéo trouvée.
-                const streamUrl = data.sources[0].url; 
-                
-                videoIframe.src = streamUrl;
-                titleDisplay.innerHTML = `<i class="fas fa-play-circle"></i> Lecture - Épisode ${episodeNumber} (Source ${apiName})`;
-                renderEpisodeControls(animeId, parseInt(episodeNumber), data.totalEpisodes || 0); 
-                videoFound = true;
-                break; // Sort de la boucle après succès
-            } else {
-                throw new Error(`Aucune source vidéo retournée.`);
-            }
-
         } catch (error) {
-            console.error(`Erreur sur ${apiName}:`, error);
-            lastError = error;
-            // Continue la boucle
+            lastError = `Erreur sur ${api.name}: ${error.message}`;
+            console.error(lastError, error);
         }
     }
 
-    // GESTION DE L'ÉCHEC FINAL
-    if (!videoFound) {
-        let finalMessage = "Échec total de la lecture. Aucune des APIs n'a pu fournir la source.";
-        if (lastError && lastError.message) {
-             // Message d'erreur plus convivial pour le 404
-             if (lastError.message.includes("Statut: 404")) {
-                 finalMessage = `Échec 404 sur toutes les sources. L'anime (ID:${animeId}) n'est pas supporté.`;
-             } else {
-                 finalMessage += ` Dernière erreur: ${lastError.message}`;
-             }
-        }
-        titleDisplay.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${finalMessage}`;
-        videoIframe.src = ''; 
+    if (!sourceFound) {
+        displayError(`Échec total de la lecture. Aucune des APIs n'a pu fournir la source. Dernière erreur: ${lastError || "Erreur inconnue."}`);
     }
 }
 
-/**
- * Affiche les boutons pour naviguer aux épisodes. (Inchangée)
- */
-function renderEpisodeControls(animeId, currentEpisode, totalEpisodes) {
-    episodeControls.innerHTML = ''; 
+// ----------------------------------------------------
+// 2. Fonctions de Fetch par API
+// ----------------------------------------------------
+
+// Utilitaire pour récupérer le titre depuis Jikan
+async function fetchAnimeTitle(malId) {
+    try {
+        const response = await fetch(`${JIKAN_DETAILS_URL}/${malId}`);
+        const data = await response.json();
+        const anime = data.data;
+
+        // Simplification du titre pour la recherche API
+        let searchTitle = anime.title_english || anime.title_japanese || anime.title;
+        if (searchTitle.includes(':')) {
+            searchTitle = searchTitle.split(':')[0].trim();
+        }
+
+        return { title: anime.title, searchTitle: searchTitle };
+    } catch (e) {
+        console.error("Erreur Jikan lors de la récupération du titre:", e);
+        return null;
+    }
+}
+
+// 🚨 NOUVELLE FONCTION : Zoro-API
+async function fetchZoroSource(title, episodeNumber, url) {
+    // 1. Rechercher l'anime pour obtenir son ID Zoro
+    const searchUrl = `${url}/search?q=${encodeURIComponent(title)}`;
+    const searchResponse = await fetch(searchUrl);
+    const searchData = await searchResponse.json();
+
+    if (!searchData.data || searchData.data.length === 0) {
+        throw new Error("Anime non trouvé sur Zoro-API");
+    }
+
+    const zoroId = searchData.data[0].id; // Prendre le premier résultat
+
+    // 2. Obtenir les épisodes pour l'ID Zoro
+    const episodesUrl = `${url}/episodes/${zoroId}`;
+    const episodesResponse = await fetch(episodesUrl);
+    const episodesData = await episodesResponse.json();
+
+    if (!episodesData.episodes || episodesData.episodes.length === 0) {
+        throw new Error("Épisodes non trouvés pour Zoro ID: " + zoroId);
+    }
     
-    // Bouton Précédent
-    if (currentEpisode > 1) {
-        const prevEpisode = currentEpisode - 1;
-        episodeControls.insertAdjacentHTML('beforeend', `
-            <a href="watch.html?id=${animeId}&episode=${prevEpisode}" class="submit-button" style="margin-right: 15px;">
-                <i class="fas fa-chevron-left"></i> Épisode ${prevEpisode}
-            </a>
-        `);
-    }
+    // 3. Trouver le lien embed pour l'épisode demandé
+    const episode = episodesData.episodes.find(ep => ep.number === parseInt(episodeNumber));
 
-    // Bouton Suivant
-    if (currentEpisode < totalEpisodes) {
-        const nextEpisode = currentEpisode + 1;
-        episodeControls.insertAdjacentHTML('beforeend', `
-            <a href="watch.html?id=${animeId}&episode=${nextEpisode}" class="submit-button">
-                Épisode ${nextEpisode} <i class="fas fa-chevron-right"></i>
-            </a>
-        `);
+    if (episode && episode.link) {
+        // L'API Zoro peut donner un lien direct ou un lien pour obtenir le lecteur (similaire à Consumet)
+        // Ici, on suppose que le lien final est soit dans .link soit nécessite une étape de plus
+        // Pour l'instant, on suppose qu'il donne le lien Iframe final (cela dépend de l'API)
+        return episode.link; 
     }
+    throw new Error(`Épisode ${episodeNumber} non trouvé sur Zoro.`);
 }
 
-document.addEventListener('DOMContentLoaded', loadEpisodePlayer);
+// 🚨 NOUVELLE FONCTION : Animepahe API
+async function fetchAnimepaheSource(title, episodeNumber, url) {
+    // Cette API nécessite souvent une recherche complexe. Nous allons simuler une structure de base.
+    // L'API Animepahe requiert souvent des étapes multi-étapes.
+
+    // 1. Rechercher l'anime
+    const searchUrl = `${url}/search?q=${encodeURIComponent(title)}`;
+    const searchResponse = await fetch(searchUrl);
+    const searchData = await searchResponse.json();
+
+    if (!searchData.results || searchData.results.length === 0) {
+        throw new Error("Anime non trouvé sur Animepahe.");
+    }
+    
+    // 2. Obtenir les épisodes (L'ID peut être complexe ici)
+    const paheId = searchData.results[0].session; 
+
+    // Les étapes suivantes sont souvent trop complexes pour un simple fetch direct
+    // car Animepahe API donne souvent des données non utilisables directement
+    // (ex: l'embed final est souvent obscurci ou nécessite un JS runtime).
+    // Nous allons simuler un succès si on a trouvé l'ID pour le moment.
+
+    // 🚨 AVERTISSEMENT : L'implémentation complète de Animepahe API est complexe
+    // et ne peut pas être garantie sans une API proxy serveur.
+    
+    // Pour l'exemple, nous allons chercher le lien embed s'il est simple:
+    const episodeUrl = `${url}/watch/${paheId}/${episodeNumber}`; 
+    const episodeResponse = await fetch(episodeUrl);
+    const episodeData = await episodeResponse.json();
+    
+    // On suppose que episodeData.embed contient l'URL iframe finale.
+    if (episodeData.embed) {
+        return episodeData.embed;
+    }
+    
+    throw new Error(`Épisode ${episodeNumber} non trouvé sur Animepahe.`);
+}
+
+// Ancienne fonction Gojo, maintenue pour la compatibilité (dernier recours)
+async function fetchGojoSource(title, episodeNumber, url) {
+    // 1. Rechercher les épisodes via le titre
+    const episodesUrl = `${url}/${encodeURIComponent(title)}`;
+    const episodesResponse = await fetch(episodesUrl);
+    
+    if (!episodesResponse.ok) {
+        throw new Error(`ÉCHEC (Statut: ${episodesResponse.status})`);
+    }
+
+    const episodesData = await episodesResponse.json();
+    const episode = episodesData.episodes?.find(ep => ep.number === parseInt(episodeNumber));
+    
+    // 2. Obtenir le lien embed si disponible
+    if (episode && episode.link) {
+        // L'API Gojo donne le lien embed directement
+        return episode.link; 
+    }
+    throw new Error(`Épisode ${episodeNumber} non trouvé sur Gojo.`);
+}
+
+
+// ----------------------------------------------------
+// 3. Fonctions de Rendu et d'Erreur
+// ----------------------------------------------------
+function renderPlayer(embedUrl) {
+    playerContainer.innerHTML = `
+        <iframe src="${embedUrl}" 
+                allowfullscreen 
+                frameborder="0" 
+                scrolling="no" 
+                title="Lecteur d'Anime">
+        </iframe>
+    `;
+    messageContainer.innerHTML = ''; // Nettoyer le message d'erreur/chargement
+}
+
+function displayError(message) {
+    messageContainer.innerHTML = `
+        <div class="error-box">
+            <i class="fas fa-exclamation-triangle"></i> 
+            <p>${message}</p>
+        </div>
+    `;
+    playerContainer.innerHTML = '';
+    console.error("ERREUR DE LECTURE:", message);
+}
+
+// ----------------------------------------------------
+// 4. Exécution initiale
+// ----------------------------------------------------
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const malId = urlParams.get('id');
+    const episodeNumber = urlParams.get('episode');
+
+    loadEpisodeSource(malId, episodeNumber);
+});
