@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOM DE VOTRE ANIME - Mon Profil</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <header class="anime-header">
+        <div class="header-top">
+            <h1 class="site-title">NOM DE VOTRE ANIME</h1>
+            
+            <div class="controls" id="auth-controls">
+                <a href="login.html" class="auth-button login-btn">Connexion</a>
+                <a href="register.html" class="auth-button register-btn">Inscription</a>
+                <button id="theme-toggle" aria-label="Changer de thème" class="theme-toggle">
+                    <i class="fas fa-sun"></i> 
+                </button>
+            </div>
+        </div>
+        <nav class="main-nav">
+            <a href="index.html">Accueil</a>
+            <a href="#">Simulcasts</a>
+            <a href="#">Films</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="content-page profile-page">
+            <h2 id="profile-title"><i class="fas fa-user-circle"></i> Mon Profil</h2>
+            
+            <p>Cet espace est réservé pour gérer vos préférences, votre liste d'animes favoris et vos paramètres de compte.</p>
+            
+            <div class="profile-details">
+                <h3>Détails du Compte</h3>
+                <p><strong>Nom d'utilisateur :</strong> <span id="username-display">Utilisateur Test</span></p>
+                <p><strong>Email :</strong> <span id="email-display">test@anime.fr</span></p>
+            </div>
+            
+            <div class="favorite-list">
+                <h3><i class="fas fa-heart"></i> Mes Favoris (Simulés)</h3>
+                <ul>
+                    <li><a href="#">One Piece</a></li>
+                    <li><a href="#">Demon Slayer</a></li>
+                    <li><a href="#">Spy x Family</a></li>
+                </ul>
+            </div>
+
+            <button id="logout-button-page" class="submit-button" style="background-color: #e74c3c;">
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
+            </button>
+            
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 NOM DE VOTRE ANIME. Tous droits réservés.</p>
+    </footer>
+
+    <script src="theme-toggle.js"></script> 
+    <script src="auth-header.js"></script> 
+    </body>
+</html>

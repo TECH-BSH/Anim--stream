@@ -1,0 +1,760 @@
+/* Fichier : style.css */
+
+/* --- 1. Variables de Thème et Réinitialisation --- */
+
+/* Définition des variables pour le mode SOMBRE (Dark Mode - par défaut) */
+html[data-theme="dark"] {
+    --bg-primary: #121212;        /* Arrière-plan principal (body) */
+    --bg-secondary: #1e1e1e;      /* Arrière-plan des éléments (cartes, inputs) */
+    --text-color: #f0f0f0;        /* Texte clair */
+    --link-color: #ff4500;        /* Orange vif (couleur d'accent) */
+    --header-bg: #1f1f1f;         /* Fond de l'en-tête et du pied de page */
+    --border-color: #333333;      /* Bordures et lignes de séparation */
+    --shadow-color: rgba(0, 0, 0, 0.4);
+    --text-secondary: #aaaaaa;    /* Texte secondaire */
+}
+
+/* Définition des variables pour le mode CLAIR (Light Mode) */
+html[data-theme="light"] {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f4f4f9;
+    --text-color: #333333;
+    --link-color: #007bff;        /* Bleu classique */
+    --header-bg: #e0e0e0;
+    --border-color: #cccccc;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --text-secondary: #666666;
+}
+
+/* Réinitialisation de base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-color);
+    transition: background-color 0.5s, color 0.5s; 
+}
+
+a {
+    text-decoration: none;
+    color: var(--link-color);
+}
+
+/* --- 2. En-tête et Bannière (Header) --- */
+.anime-header {
+    background-color: var(--header-bg);
+    padding: 15px 5%;
+    box-shadow: 0 4px 10px var(--shadow-color);
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.site-title {
+    font-size: 2rem;
+    color: var(--link-color); 
+}
+
+/* --- Contrôles (Boutons Auth et Thème) --- */
+.controls {
+    display: flex;
+    gap: 15px;
+}
+
+.theme-toggle {
+    background: var(--bg-secondary);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.theme-toggle:hover {
+    background: var(--border-color);
+}
+
+/* Styles spécifiques pour les boutons d'Auth. dans l'en-tête */
+.auth-button {
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-align: center;
+    transition: background-color 0.3s, color 0.3s;
+    /* Assure que le texte du lien est en une seule ligne */
+    white-space: nowrap; 
+}
+
+.auth-button.login-btn {
+    /* Bouton Connexion (Style secondaire/clair) */
+    background-color: transparent;
+    border: 1px solid var(--link-color);
+    color: var(--link-color);
+}
+
+.auth-button.login-btn:hover {
+    background-color: var(--link-color);
+    color: var(--bg-primary); /* Texte sombre sur fond orange */
+}
+
+.auth-button.register-btn {
+    /* Bouton Inscription (Style principal/orange) */
+    background-color: var(--link-color);
+    color: white;
+    border: 1px solid var(--link-color);
+}
+
+.auth-button.register-btn:hover {
+    background-color: #cc3700; /* Orange plus foncé au survol */
+}
+
+
+/* --- Styles pour l'état connecté (Profil / Déconnexion) --- */
+
+.auth-button.profile-btn {
+    /* Bouton de profil/nom d'utilisateur */
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+.auth-button.profile-btn i {
+    margin-right: 5px;
+}
+
+.auth-button.logout-btn {
+    /* Bouton de déconnexion */
+    background-color: transparent;
+    border: 1px solid #e74c3c; /* Rouge pour l'action de déconnexion */
+    color: #e74c3c;
+}
+
+.auth-button.logout-btn:hover {
+    background-color: #e74c3c;
+    color: white;
+}
+
+
+/* --- Navigation --- */
+.main-nav {
+    display: flex;
+    gap: 20px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.main-nav a {
+    color: var(--text-color);
+    padding: 5px 0;
+    transition: color 0.3s;
+}
+
+.main-nav a:hover {
+    color: var(--link-color);
+}
+.main-nav a.active-link {
+    border-bottom: 2px solid var(--link-color);
+    font-weight: bold;
+}
+
+/* --- Styles de la Section de Recherche (index.html) --- */
+
+.search-section {
+    padding: 30px 5%;
+    background-color: var(--header-bg); /* Utilise la couleur de l'en-tête pour le contraste */
+    border-bottom: 1px solid var(--border-color);
+}
+
+.search-bar-container {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+#search-input {
+    flex-grow: 1;
+    padding: 12px 15px;
+    border: none;
+    background-color: var(--bg-primary);
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+#search-input::placeholder {
+    color: var(--text-secondary);
+}
+
+#search-button {
+    background-color: var(--link-color);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#search-button:hover {
+    background-color: #cc3700;
+}
+
+
+/* --- 3. Styles de la Page d'Accueil (index.html) --- */
+
+.anime-catalogue {
+    padding: 40px 5%;
+    display: grid;
+    /* Crée des colonnes responsives, min 200px, max 1fr */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+    gap: 25px;
+}
+
+.anime-catalogue h2 {
+    /* Pour que le titre s'étende sur toute la largeur */
+    grid-column: 1 / -1; 
+    margin-bottom: 20px;
+    color: var(--text-color);
+}
+
+.anime-card {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px var(--shadow-color);
+    transition: transform 0.3s;
+    cursor: pointer;
+}
+
+.anime-card:hover {
+    transform: translateY(-5px); 
+}
+
+.anime-card img {
+    width: 100%;
+    height: 300px;
+    display: block;
+    object-fit: cover;
+}
+
+.anime-card h3 {
+    padding: 10px 15px 5px;
+    font-size: 1.1rem;
+    color: var(--link-color);
+}
+
+.anime-card .card-content {
+    padding: 0 15px 15px;
+}
+
+.anime-card p {
+    font-size: 0.9rem;
+    color: var(--text-secondary); 
+}
+
+.anime-card .score i {
+    color: gold;
+    margin-right: 5px;
+}
+
+
+/* --- 4. Pagination (Index) --- */
+.pagination {
+    padding: 20px 5%;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+}
+
+.page-link {
+    display: inline-block;
+    padding: 8px 15px;
+    margin: 0 5px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    transition: background-color 0.3s, border-color 0.3s;
+    color: var(--text-color);
+}
+
+.page-link:hover:not(.active) {
+    background-color: var(--bg-secondary);
+}
+
+.page-link.active {
+    background-color: var(--link-color);
+    border-color: var(--link-color);
+    color: white;
+    font-weight: bold;
+}
+
+/* --- 5. Pied de Page (Footer) --- */
+footer {
+    background-color: var(--header-bg);
+    text-align: center;
+    padding: 15px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* --- 6. Styles de la Page de Détails (details.html) --- */
+
+.anime-detail-page {
+    padding: 20px 5% 50px 5%; 
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* --- Styles pour le Lecteur Vidéo (détails.html) --- */
+
+.video-player-container {
+    width: 100%;
+    /* Ratio 16:9 */
+    padding-top: 56.25%; 
+    position: relative;
+    background-color: #000;
+    margin-bottom: 30px;
+    border-radius: 8px; 
+    overflow: hidden;
+    box-shadow: 0 8px 15px var(--shadow-color); 
+}
+
+.video-player-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+
+.detail-hero {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 50px;
+    background-color: var(--bg-secondary);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px var(--shadow-color);
+}
+
+.hero-poster img {
+    width: 300px;
+    height: 450px;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.hero-info {
+    flex-grow: 1;
+}
+
+.anime-title {
+    font-size: 2.5rem;
+    color: var(--link-color);
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.metadata span {
+    display: inline-block;
+    background-color: var(--border-color);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    margin-right: 10px;
+    color: var(--text-color);
+}
+
+.metadata .rating i {
+    color: gold;
+}
+
+.synopsis {
+    margin: 30px 0;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--text-color);
+}
+
+.watch-button {
+    background-color: var(--link-color);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 5px;
+    font-weight: bold;
+    display: inline-block;
+    transition: background-color 0.3s;
+    margin-right: 15px;
+}
+
+.watch-button:hover {
+    background-color: #cc3700;
+}
+
+.genre-tag {
+    display: inline-block;
+    padding: 5px 15px;
+    border: 1px solid var(--link-color);
+    color: var(--link-color);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    margin-right: 8px;
+    margin-top: 10px; 
+}
+
+.episode-list h3 {
+    font-size: 1.8rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.episodes-container {
+    list-style: none;
+}
+
+.episode-item a {
+    display: block;
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    background-color: var(--bg-secondary);
+    border-radius: 5px;
+    border-left: 5px solid transparent;
+    transition: border-left 0.3s, background-color 0.3s;
+    color: var(--text-color);
+}
+
+.episode-item a:hover {
+    background-color: var(--border-color);
+    border-left: 5px solid var(--link-color);
+}
+
+.ep-number {
+    font-weight: bold;
+    color: var(--link-color);
+    margin-right: 10px;
+}
+
+/* --- 7. Styles des Formulaires Général (Contact & Connexion/Inscription & Profil) --- */
+
+.content-page {
+    padding: 50px 5%;
+    max-width: 800px;
+    margin: 40px auto;
+    background-color: var(--bg-secondary);
+    border-radius: 10px;
+    box-shadow: 0 4px 10px var(--shadow-color);
+}
+
+.content-page h2 {
+    font-size: 2rem;
+    color: var(--link-color);
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.content-page p {
+    margin-bottom: 15px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+}
+
+.contact-form, .login-box form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background-color: var(--bg-primary);
+    color: var(--text-color);
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: var(--link-color);
+    outline: none;
+}
+
+.submit-button {
+    background-color: var(--link-color);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+    background-color: #cc3700;
+}
+
+
+/* --- Styles spécifiques à la Page de Profil (profile.html) --- */
+
+.profile-page h3 {
+    color: var(--text-color);
+    margin-top: 30px;
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.profile-details p {
+    margin: 8px 0;
+}
+
+.profile-details strong {
+    color: var(--link-color);
+    min-width: 120px;
+    display: inline-block;
+}
+
+.favorite-list ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+}
+
+.favorite-list li {
+    background-color: var(--bg-primary);
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    transition: background-color 0.3s;
+}
+
+.favorite-list li:hover {
+    background-color: var(--border-color);
+}
+
+#logout-button-page {
+    margin-top: 40px;
+    width: 100%;
+}
+
+
+/* --- 8. Styles de la Page d'Authentification (login.html & register.html) --- */
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 100px); 
+    padding: 50px 5%;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 400px;
+    padding: 40px;
+    background-color: var(--bg-secondary);
+    border-radius: 10px;
+    box-shadow: 0 10px 25px var(--shadow-color);
+    text-align: center;
+}
+
+.login-box h2 {
+    font-size: 1.8rem;
+    color: var(--link-color);
+    margin-bottom: 30px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 15px;
+}
+
+.login-button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+}
+
+/* Séparateur "OU" */
+.divider {
+    text-align: center;
+    margin: 25px 0;
+    position: relative;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background-color: var(--border-color);
+}
+
+.divider::before {
+    left: 0;
+}
+
+.divider::after {
+    right: 0;
+}
+
+/* Message de statut */
+.message-area {
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.message-area.success {
+    background-color: #1abc9c30; 
+    color: #1abc9c;
+    border: 1px solid #1abc9c;
+}
+
+.message-area.error {
+    background-color: #e74c3c30; 
+    color: #e74c3c;
+    border: 1px solid #e74c3c;
+}
+
+.options {
+    margin-top: 25px;
+    font-size: 0.9rem;
+}
+
+.options a {
+    color: var(--text-secondary);
+    transition: color 0.3s;
+}
+
+.options a:hover {
+    color: var(--link-color);
+}
+
+.options span {
+    color: var(--text-secondary);
+    margin: 0 10px;
+}
+
+/* ------------------------------------------------------------- */
+/* --- 9. Adaptation Mobile (Media Queries) --- */
+@media (max-width: 768px) {
+    
+    .header-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .search-bar-container {
+        width: 100%;
+    }
+
+    .site-title {
+        font-size: 2.5rem;
+        width: 100%;
+        text-align: left;
+    }
+
+    .controls {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    /* Adaptation pour les boutons Auth sur petits écrans */
+    @media (max-width: 480px) {
+        .controls {
+            display: grid;
+            /* Inscription | Connexion | Thème */
+            grid-template-columns: 1fr 1fr auto; 
+            gap: 10px;
+        }
+        .auth-button {
+            padding: 10px 5px; 
+            font-size: 0.8rem;
+        }
+    }
+    
+    .main-nav {
+        flex-wrap: wrap; 
+        gap: 15px 10px;
+        padding-bottom: 5px;
+    }
+    
+    .anime-catalogue {
+        grid-template-columns: 1fr;
+        padding: 20px 5%;
+    }
+
+    .anime-card img {
+        height: auto; 
+        max-height: 200px; 
+        width: 100%;
+        object-fit: cover;
+    }
+    
+    .detail-hero {
+        flex-direction: column;
+        padding: 20px;
+        gap: 20px;
+    }
+    .hero-poster {
+        text-align: center;
+    }
+    .hero-poster img {
+        width: 100%;
+        max-width: 300px; 
+        height: auto;
+    }
+    .anime-title {
+        font-size: 2rem;
+    }
+    .actions {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .watch-button {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .content-page, .auth-container {
+        margin: 20px 5%;
+        padding: 20px;
+        min-height: auto;
+    }
+}

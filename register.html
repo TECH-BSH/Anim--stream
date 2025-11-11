@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANIME STREAM - Inscription</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <header class="anime-header">
+        <div class="header-top">
+            <h1 class="site-title">ANIME STREAM</h1>
+            
+            <div class="controls" id="auth-controls">
+                </div>
+        </div>
+        <nav class="main-nav">
+            <a href="index.html">Accueil</a>
+            <a href="#">Simulcasts</a>
+            <a href="#">Films</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="auth-container">
+            <div class="login-box">
+                <h2><i class="fas fa-user-plus"></i> Créer un Compte</h2>
+                
+                <form id="registerForm">
+                    <div id="message-area" class="message-area" style="display:none;"></div>
+                    
+                    <div class="form-group">
+                        <label for="reg-username">Nom d'utilisateur</label>
+                        <input type="text" id="reg-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-email">Email</label>
+                        <input type="email" id="reg-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-password">Mot de passe</label>
+                        <input type="password" id="reg-password" required>
+                    </div>
+                    
+                    <button type="submit" class="submit-button login-button">
+                        S'inscrire
+                    </button>
+                </form>
+
+                <div class="options">
+                    Vous avez déjà un compte ? <a href="login.html">Connectez-vous ici</a>.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 NOM DE VOTRE ANIME. Tous droits réservés.</p>
+    </footer>
+
+    <script src="theme-toggle.js"></script> 
+    <script src="auth-header.js"></script> 
+    
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('reg-username').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const messageArea = document.getElementById('message-area');
+
+            if (!username || !email) {
+                messageArea.style.display = 'block';
+                messageArea.className = 'message-area error';
+                messageArea.textContent = 'Veuillez remplir tous les champs requis.';
+                return;
+            }
+
+            // 1. Simuler la création du compte en le stockant localement
+            const newUser = { 
+                username: username, 
+                email: email 
+            };
+            
+            // Stockage de l'utilisateur créé dans le localStorage sous la clé 'lastRegisteredUser'
+            localStorage.setItem('lastRegisteredUser', JSON.stringify(newUser));
+            
+            // 2. Afficher un message de succès
+            messageArea.style.display = 'block';
+            messageArea.className = 'message-area success';
+            messageArea.textContent = `Compte créé pour ${username} ! Redirection vers la connexion...`;
+            
+            // 3. Rediriger vers la page de connexion après 2 secondes
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
